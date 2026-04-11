@@ -7,7 +7,7 @@ import { TranslateSkeleton, SummarizeSkeleton, FullPageLoader } from "../compone
 import { exportProfessionalPDF } from "../utils/pdfExport.js";
 
 const INDIAN_LANGUAGES = ["Hindi", "Bengali", "Telugu", "Marathi", "Tamil", "Urdu", "Kannada", "English", "Sanskrit", "Gujarati", "Malayalam", "Punjabi"];
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = "https://vishwavani-ai.onrender.com/";
 
 export default function Dashboard() {
     const [file, setFile] = useState(null);
