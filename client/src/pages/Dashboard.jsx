@@ -40,38 +40,77 @@ export default function Dashboard() {
     };
 
     const handleTranslate = async () => {
-        if (!extractedText) return;
-        setLoadingStep("translate");
+    if (!extractedText) return;
+    setLoadingStep("translate");
+
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/translate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: extractedText, targetLanguage: selectedLanguage }),
+        });
+
+        const text = await response.text(); // ✅ FIX
+
+        let data;
         try {
-            const response = await fetch(`${BACKEND_URL}/api/translate`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: extractedText, targetLanguage: selectedLanguage }),
-            });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || "Translation failed");
-            setTranslationResult(data.translation);
-            setActiveTab("translation");
-        } catch (error) { alert(error.message); }
-        finally { setLoadingStep(null); }
-    };
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error("❌ RAW RESPONSE:", text);
+            throw new Error("Server returned invalid JSON");
+        }
+
+        if (!response.ok) {
+            throw new Error(data.details || data.error || "Translation failed");
+        }
+
+        setTranslationResult(data.translation);
+        setActiveTab("translation");
+
+    } catch (error) {
+        console.error("🔥 TRANSLATE ERROR:", error);
+        alert(error.message);
+    } finally {
+        setLoadingStep(null);
+    }
+};
 
     const handleSummarize = async () => {
-        const textToProcess = translationResult || extractedText;
-        if (!textToProcess) return;
-        setLoadingStep("summary");
+    const textToProcess = translationResult || extractedText;
+    if (!textToProcess) return;
+    setLoadingStep("summary");
+
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/summarize`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: textToProcess, language: selectedLanguage }),
+        });
+
+        const text = await response.text(); // ✅ FIX
+
+        let data;
         try {
-            const response = await fetch(`${BACKEND_URL}/api/summarize`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: textToProcess, language: selectedLanguage }),
-            });
-            const data = await response.json();
-            setSummaryResult(data.summary);
-            setActiveTab("summary");
-        } catch (error) { alert(error.message); }
-        finally { setLoadingStep(null); }
-    };
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error("❌ RAW RESPONSE:", text);
+            throw new Error("Invalid JSON from server");
+        }
+
+        if (!response.ok) {
+            throw new Error(data.details || data.error || "Summarization failed");
+        }
+
+        setSummaryResult(data.summary);
+        setActiveTab("summary");
+
+    } catch (error) {
+        console.error("🔥 SUMMARY ERROR:", error);
+        alert(error.message);
+    } finally {
+        setLoadingStep(null);
+    }
+};
 
     const handleDownload = async () => {
         let content = activeTab === "extracted" ? extractedText : activeTab === "translation" ? translationResult : summaryResult;
