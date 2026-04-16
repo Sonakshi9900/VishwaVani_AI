@@ -1,10 +1,11 @@
 import express from "express";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
-import { Translate } from "@google-cloud/translate";
+import pkg from '@google-cloud/translate';
 
 dotenv.config();
 
+const { Translate } = pkg.v2;
 const router = express.Router();
 const apiKey = process.env.GEMINI_API_KEY;
 
