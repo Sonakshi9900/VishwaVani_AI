@@ -1,6 +1,7 @@
 import express from "express";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
+import { Translate } from "@google-cloud/translate";
 
 dotenv.config();
 
